@@ -67,8 +67,8 @@ class Board:
 
 
 
-
-b = Board(10)
-b.populate(25)
-b.printArray()
+#debug
+#b = Board(10)
+#b.populate(25)
+#b.printArray()
 
