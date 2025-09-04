@@ -32,11 +32,7 @@ class Board:
                 realCount = realCount + 1
                 self.array[row][col].val = self.BOMB_VALUE # place a mine.
                 self.update_adjacency(row, col) #Update adjacency value of adjacent cells
-                #print(f"mine {realCount} placed at {row}, {col}") # debug print statement
-            
-            else:
-                #print(f"mine placement failed at {row}, {col}") # debug print statement
-                pass
+
 
     def select(self, row, col, flag): # this function "clicks" on the mine. flag is boolean
 
@@ -46,7 +42,11 @@ class Board:
         else:
             self.array[row][col].tag = 1 # set tag to cleared
 
-        return self.array[row][col].val # this returns the val of the selected cell
+            if self.array[row][col].val == self.BOMB_VALUE:
+                self.alive = False
+
+        return self.alive # this returns the val of the selected cell
+
 
     def update_adjacency(self, row, col):
         '''Takes in a row and column value, increments adjacency values in valid adjacent cells'''

@@ -50,7 +50,9 @@ def minesweeper(board, mineCount): # runs the actual game
         row = int(input("Row?: "))
         col = int(input("Column?: "))
 
-        if board.select(row, col, flag) == 9:
+        board.select(row, col, flag)
+
+        if not board.alive:
             loop = False
             os.system('clear')
             print(f"\nMines left: {mineCount - flagCount}")
