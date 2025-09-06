@@ -40,10 +40,7 @@ class Board:
             self.array[row][col].tag = 2 # set tag to flagged
         
         else:
-            self.array[row][col].tag = 1 # set tag to cleared
-
-            if self.array[row][col].val == self.BOMB_VALUE:
-                self.alive = False
+            self._reveal(row, col)
 
         return self.alive # this returns the val of the selected cell
 
@@ -62,6 +59,58 @@ class Board:
                     continue
                 else:
                     self.array[row + i][col + j].val += 1   #Otherwise, increment val in target cell
+
+    def _reveal(self, row, col):
+        ''' Args:
+                row: integer indicating row of cell to reveal
+                col: integer indicating column of cell to reveal
+            Output:
+                returns True if cell was successfully revealed
+                returns False otherwise
+            Purpose:
+                called when user selects to reveal, or clear, a cell
+                checks cell's tag is set to 0, for 'hidden'
+                if so, checks if the cell contains a bomb
+                    if so, sets self.alive to False to indicate 'death'
+                if cell has no adjacent bombs, calls recursive reveal function to reveal other cells
+        '''
+        cell = self.array[row][col] #Get the target cell
+        if cell.tag == 0:   #Check that the cell is 'hidden'
+            if cell.val == self.BOMB_VALUE: #Cell contains a bomb
+                self.alive = False  #Set alive status to False
+                cell.tag = 3    #Set cell's status to triggered
+                return True     #Return a successful cell reveal
+            elif cell.val == 0: #Cell has no adjacent bombs
+                cell.tag = 1    #Set cell's status to revealed, or cleared
+                self._rec_reveal(row, col)  #Call recursive reveal function on cell coordinates
+                return True     #Return a successful cell reveal
+            else:       #Cell has some adjacent bombs
+                cell.tag = 1    #Set cell's status to revealed, or cleared
+                return True     #Return successful cell reveal
+        else:   #If the cell is not 'hidden', return False as the cell cannot be revealed
+            return False
+        
+    def _rec_reveal(self, row, col):
+        ''' Args:
+                row: integer indicating row of cell to reveal
+                col: integer indicating column of cell to reveal
+            Output:
+                returns nothing
+            Purpose:
+                called if a cell is cleared, that has no adjacent mines (cell.val == 0)
+                for each adjacent cell, calls reveal function to reveal that cell
+                    if adjacent cell has no adjacent mines, reveal will call rec_reveal again
+                    this will only happen if the adjacent cells are mine free, so subsequent calls to reveal should not trigger mines
+        '''
+        for i in range(-1,2):   #Offsets for adjacent cells in row direction
+            if row + i < 0 or row + i >= len(self.array):   #If offset puts the target row off either side of the board, skip this offset
+                continue
+            for j in range(-1,2):   #Offsets for adjacent cells in column direction
+                if col + j < 0 or col + j >= len(self.array[0]):    #If offset puts the target column off either side of the board, skip this offset
+                    continue
+                else:   #Target cell is valid
+                    print(f'({row+i},{col+j})')
+                    self._reveal(row + i, col + j)   #Call reveal function on target cell coordinates
         
     def show_contents(self):
         '''Reveal contents of board by setting all cell tags to 1'''
@@ -77,8 +126,11 @@ class Board:
 if __name__ == '__main__':
     #debug
     b = Board(10)
-    b.populate(25)
+    b.populate(10)
     #b.select(0,1)
-    b.show_contents()
+    #b.show_contents()
+    b.select(0,9,False)
+    b.printArray()
+    b.select(0,9,False)
     b.printArray()
 
