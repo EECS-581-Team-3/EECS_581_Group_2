@@ -37,7 +37,10 @@ class Board:
     def select(self, row, col, flag): # this function "clicks" on the mine. flag is boolean
 
         if flag:
-            self.array[row][col].tag = 2 # set tag to flagged
+            if self.array[row][col].tag == 2:
+                self.array[row][col].tag = 0 #set tag back to hidden
+            elif self.array[row][col].tag == 0:
+                self.array[row][col].tag = 2 # set tag to flagged
         
         else:
             self._reveal(row, col)

@@ -28,6 +28,28 @@ def main(): # acts as the start menu type shit
 
     exit()
 
+def victory_check(board, mineCount):
+        bombs_flagged = 0 #amount of bombs that are correctly flagged
+        safe_cells_discovered = 0 #amount of safe tiles the user has found
+        total_safe_cells = (board.size * board.size) - mineCount
+
+        for row in board.array: #look through each row
+
+            for cell in row: #look through each cell
+
+                if cell.val == board.BOMB_VALUE and cell.tag == 2:#checks to see if bomb is flagged
+                    bombs_flagged += 1
+                
+                else:
+                    if cell.tag == 1:
+                        safe_cells_discovered += 1
+                
+                
+                if cell.val != board.BOMB_VALUE and cell.tag == 2:  #Prevents flag abuse by user
+                    return False
+
+        return bombs_flagged == mineCount or total_safe_cells == safe_cells_discovered
+
 def minesweeper(board, mineCount): # runs the actual game
     flagCount = 0 # need to add based on the amount of flags placed down
     loop = True
@@ -51,12 +73,19 @@ def minesweeper(board, mineCount): # runs the actual game
         col = int(input("Column?: "))
 
         board.select(row, col, flag)
-
         if not board.alive:
             loop = False
             os.system('clear')
             print(f"\nMines left: {mineCount - flagCount}")
             board.printArray()
             print("BOOOOM!!!")
+        
+        if victory_check(board, mineCount):
+            loop = False
+            os.system('clear')
+            print(f"\nAll {mineCount} mines have been found")
+            board.printArray()
+            print("VICTORY!!!")
+
 
 main()
