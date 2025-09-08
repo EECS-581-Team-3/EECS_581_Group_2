@@ -13,8 +13,7 @@ def main(): # acts as the start menu type shit
 
         # initialize board with user specified parameters
         b = Board(size)
-        b.populate(mineCount)
-
+        
         os.system('clear')
         minesweeper(b, mineCount)
         
@@ -42,6 +41,7 @@ def victory_check(board, mineCount):
         return total_safe_cells == safe_cells_discovered
 
 def minesweeper(board, mineCount): # runs the actual game
+    firstIter = True
     flagCount = 0 # need to add based on the amount of flags placed down
     loop = True
     while(loop):
@@ -62,6 +62,10 @@ def minesweeper(board, mineCount): # runs the actual game
         row = int(input("Row?: "))
         col = int(input("Column?: "))
 
+        if firstIter: # this makes sure that the board is populated AFTER the first cell is selected
+            firstIter = False
+            board.populate(mineCount, row, col)
+
         flagged = board.select(row, col, flag)
 
         if flagged == "flag":
@@ -69,19 +73,28 @@ def minesweeper(board, mineCount): # runs the actual game
         elif flagged == "unflag":
             flagCount -= 1
             
-        if not board.alive:
-            loop = False
-            os.system('clear')
-            print(f"\nMines left: {mineCount - flagCount}")
-            board.printArray()
-            print("BOOOOM!!!")
-        
         if victory_check(board, mineCount):
             loop = False
             os.system('clear')
             print(f"\nAll {mineCount} mines have been found")
+            board.show_contents()
             board.printArray()
             print("VICTORY!!!")
+
+        if not board.alive:
+            loop = False
+            os.system('clear')
+            print(f"\nMines left: {mineCount - flagCount}")
+            board.show_contents()
+            board.printArray()
+            print("BOOOOM!!!")
+    
+    again = input("Play again?(y/n)").lower() # asks the user if they wish to play again after the main loop ends
+
+    if again == 'y':
+        main()
+    
+        
 
 
 main()

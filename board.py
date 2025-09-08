@@ -12,14 +12,13 @@ class Board:
 
     def printArray(self): # now with labeled edges
         print("  " + str([i for i in range(self.size)]))
-        #print(np.matrix(self.array))
         j = 0
         for row in self.array:
             print(f"{j} " + str(row))
             j = j+ 1
 
 
-    def populate(self, mineCount): #throw mines everywhere on that john
+    def populate(self, mineCount, firstRow, firstCol): #throw mines everywhere on that john
         # realCount = amount of mines on board
         # if mineCount != realCount, keep going
         # else stop
@@ -29,9 +28,10 @@ class Board:
             col = rng.randint(0, self.size - 1)
 
             if self.array[row][col].val != self.BOMB_VALUE: # if the cell is not a bomb, place a mine and increment realCount
-                realCount = realCount + 1
-                self.array[row][col].val = self.BOMB_VALUE # place a mine.
-                self.update_adjacency(row, col) #Update adjacency value of adjacent cells
+                if not (row == firstRow and col == firstCol): # makes sure that a mine is not placed on the first selected square
+                    realCount = realCount + 1
+                    self.array[row][col].val = self.BOMB_VALUE # place a mine.
+                    self.update_adjacency(row, col) #Update adjacency value of adjacent cells
 
 
     def select(self, row, col, flag): # this function "clicks" on the mine. flag is boolean
@@ -120,8 +120,9 @@ class Board:
     def show_contents(self):
         '''Reveal contents of board by setting all cell tags to 1'''
         for i in range(len(self.array)):
-            for j in range(len(self.array[0])):
-                self.array[i][j].tag = 1
+            for j in range(len(self.array[0])): 
+                if self.array[i][j].tag != 3: # won't "reveal" the exploded bomb so that it remains an 'X'
+                    self.array[i][j].tag = 1
 
 
 
