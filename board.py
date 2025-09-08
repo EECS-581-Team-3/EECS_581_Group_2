@@ -39,13 +39,15 @@ class Board:
         if flag:
             if self.array[row][col].tag == 2:
                 self.array[row][col].tag = 0 #set tag back to hidden
+                return "unflag"
             elif self.array[row][col].tag == 0:
                 self.array[row][col].tag = 2 # set tag to flagged
+                return "flag"
         
         else:
             self._reveal(row, col)
 
-        return self.alive # this returns the val of the selected cell
+        return None
 
 
     def update_adjacency(self, row, col):
@@ -112,7 +114,7 @@ class Board:
                 if col + j < 0 or col + j >= len(self.array[0]):    #If offset puts the target column off either side of the board, skip this offset
                     continue
                 else:   #Target cell is valid
-                    print(f'({row+i},{col+j})')
+                    # print(f'({row+i},{col+j})')
                     self._reveal(row + i, col + j)   #Call reveal function on target cell coordinates
         
     def show_contents(self):

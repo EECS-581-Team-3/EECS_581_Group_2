@@ -52,7 +52,6 @@ def minesweeper(board, mineCount): # runs the actual game
         flag = False
         if action.lower() == 'f':
             flag = True
-            flagCount = flagCount + 1
 
         elif action.lower() == 'c':
             flag = False
@@ -63,7 +62,13 @@ def minesweeper(board, mineCount): # runs the actual game
         row = int(input("Row?: "))
         col = int(input("Column?: "))
 
-        board.select(row, col, flag)
+        flagged = board.select(row, col, flag)
+
+        if flagged == "flag":
+            flagCount += 1
+        elif flagged == "unflag":
+            flagCount -= 1
+            
         if not board.alive:
             loop = False
             os.system('clear')
