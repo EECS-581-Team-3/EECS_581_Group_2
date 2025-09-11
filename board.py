@@ -31,7 +31,7 @@ class Board:
                 if not (row == firstRow and col == firstCol): # makes sure that a mine is not placed on the first selected square
                     realCount = realCount + 1
                     self.array[row][col].val = self.BOMB_VALUE # place a mine.
-                    self.update_adjacency(row, col) #Update adjacency value of adjacent cells
+                    self._update_adjacency(row, col) #Update adjacency value of adjacent cells
 
 
     def select(self, row, col, flag): # this function "clicks" on the mine. flag is boolean
@@ -50,8 +50,21 @@ class Board:
         return None
 
 
-    def update_adjacency(self, row, col):
-        '''Takes in a row and column value, increments adjacency values in valid adjacent cells'''
+    def _update_adjacency(self, row, col):
+        '''
+            Args: 
+                row: integer indicating row of cell to reveal
+                col: integer indicating column of cell to reveal
+            Output:
+                returns nothing
+            Purpose:
+                called by the populate function when a new bomb is placed
+                iterates over adjacent cells in the row and column directions
+                for each adjacent cell, checks if it is within the bounds of the board
+                if so, checks if the cell contains a bomb or is the originating cell
+                if the adjacent cell is within the board, does not contain a bomb, and is not the originating cell
+                increments the .val member of the cell, to increment the adjacency value
+        '''
         for i in range(-1,2):   #Offsets for adjacent cells in row direction
             if row + i < 0 or row + i >= len(self.array):   #If offset puts the target row off either side of the board, skip this offset
                 continue
@@ -117,8 +130,16 @@ class Board:
                     # print(f'({row+i},{col+j})')
                     self._reveal(row + i, col + j)   #Call reveal function on target cell coordinates
         
-    def show_contents(self):
-        '''Reveal contents of board by setting all cell tags to 1'''
+    def _show_contents(self):
+        ''' Args:
+                None
+            Output:
+                returns nothing
+            Purpose:
+                For development use only
+                'Reveals' contents of board by setting all cell tags to 1
+                Causes printArray to print the adjacency value of each cell (cell.val)       
+        '''
         for i in range(len(self.array)):
             for j in range(len(self.array[0])): 
                 if self.array[i][j].tag != 3: # won't "reveal" the exploded bomb so that it remains an 'X'
@@ -132,9 +153,9 @@ class Board:
 if __name__ == '__main__':
     #debug
     b = Board(10)
-    b.populate(10)
+    b.populate(10, 0, 0)
     #b.select(0,1)
-    #b.show_contents()
+    #b._show_contents()
     b.select(0,9,False)
     b.printArray()
     b.select(0,9,False)
