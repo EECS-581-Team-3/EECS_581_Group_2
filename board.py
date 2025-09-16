@@ -136,8 +136,7 @@ class Board:
             Output:
                 returns nothing
             Purpose:
-                For development use only
-                'Reveals' contents of board by setting all cell tags to 1
+                'Reveals' contents of board by setting all cell tags to 1 unless cell tag is 3 for a triggered bomb
                 Causes printArray to print the adjacency value of each cell (cell.val)       
         '''
         for i in range(len(self.array)):
