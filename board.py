@@ -130,7 +130,7 @@ class Board:
                     # print(f'({row+i},{col+j})')
                     self._reveal(row + i, col + j)   #Call reveal function on target cell coordinates
         
-    def _show_contents(self):
+    def show_contents(self):
         ''' Args:
                 None
             Output:
@@ -154,7 +154,7 @@ if __name__ == '__main__':
     b = Board(10)
     b.populate(10, 0, 0)
     #b.select(0,1)
-    #b._show_contents()
+    #b.show_contents()
     b.select(0,9,False)
     b.printArray()
     b.select(0,9,False)
