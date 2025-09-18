@@ -200,7 +200,7 @@ class MinesweeperGUI:
         for i in range(self.board_size):
             for j in range(self.board_size):
                 cell = self.board.array[i][j]
-                if cell.val != self.board.BOMB_VALUE and cell.tag == 0:
+                if cell.val != self.board.BOMB_VALUE and (cell.tag == 0 or cell.tag == 2):
                     return False
         return True
 
