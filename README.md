@@ -2,7 +2,7 @@ Operations
 For graphical interface:
     Run gui.py file through your prefered Python launcher
     To run through the command line, run the following command
-        'python <file-path>/gui.py
+        'python <file-path>/gui.py'
 
     User controls:
         'New Game' button
@@ -20,7 +20,7 @@ For graphical interface:
 For terminal interface:
     Run main.py file through your prefered Python launcher
     To run through the command line, run the following command
-        'python <file-path>/main.py
+        'python <file-path>/main.py'
 
     User controls:
         Follow terminal prompts
