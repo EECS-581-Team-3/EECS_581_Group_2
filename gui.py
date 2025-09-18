@@ -104,6 +104,7 @@ class MinesweeperGUI:
             widget.destroy()
         
         self.game_started = False
+        self.flag_count = 0
         self.board = Board(self.board_size)
         self.buttons = []
 
