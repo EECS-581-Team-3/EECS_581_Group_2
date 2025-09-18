@@ -13,6 +13,8 @@ class MinesweeperGUI:
         self.board_size = 10
         self.mine_count = 10
 
+        self.flag_count = 0
+
         self.number_colors = {
             1: '#0000FF',  # Blue
             2: '#008000',  # Green
@@ -153,6 +155,10 @@ class MinesweeperGUI:
             return
 
         result = self.board.select(row, col, flag=True)
+        if result == 'flag':
+            self.flag_count += 1
+        elif result == 'unflag':
+            self.flag_count -= 1
 
         self.update_display()
     
@@ -174,6 +180,8 @@ class MinesweeperGUI:
                     btn.config(text="🚩", bg='yellow', relief='raised')
                 elif cell.tag == 3: # exploded bomb
                     btn.config(text="💣", bg='red', relief='sunken')
+
+        self.status_label.config(text=f"{self.mine_count - self.flag_count} mines remaining!")
     
     def game_over(self):
         # reveal all bombs
