@@ -1,3 +1,16 @@
+'''
+Module Name: Main module (terminal interface)
+Purpose: serves as terminal interface for the minesweeper game
+         controls terminal display, processes user input, checks for end status
+Input(s): None
+Output(s): None
+Author(s): Gunther Luechtefeld
+           Srihari Meyoor
+Outside Source(s):  None
+Creation Date: 09/02/2025
+Updated Date: 09/08/2025
+'''
+
 from cell import *
 from board import *
 import os

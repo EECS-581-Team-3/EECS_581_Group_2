@@ -1,3 +1,18 @@
+'''
+Module Name: Board class
+Purpose: serves as a game board manager for the minesweeper game
+         stores game board and game state information
+         handles direct interactions with game board
+Input(s): size: integer, size N of NxN game board
+Output(s): None
+Author(s): Gunther Luechtefeld
+           Jacob Kice
+           Srihari Meyoor
+Outside Source(s):  None
+Creation Date: 09/02/2025
+Updated Date: 09/17/2025
+'''
+
 from cell import Cell
 import random as rng
 import numpy as np

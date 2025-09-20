@@ -1,3 +1,16 @@
+'''
+Module Name: MinesweeperGUI class
+Purpose: serves as graphical interface for the minesweeper game
+         controls graphical display, processes user input, checks for end status
+Input(s): None
+Output(s): None
+Author(s): Jamie King
+           Jacob Kice
+Outside Source(s):  None
+Creation Date: 09/17/2025
+Updated Date: 09/17/2025
+'''
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 from board import Board

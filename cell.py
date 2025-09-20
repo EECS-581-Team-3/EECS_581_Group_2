@@ -1,3 +1,15 @@
+'''
+Module Name: Cell class
+Purpose: serves as a grid cell for the minesweeper game
+         stores cell information of mine/adjacency value and current cell status
+Input(s): None
+Output(s): None
+Author(s): Gunther Luechtefeld
+Outside Source(s):  None
+Creation Date: 09/02/2025
+Updated Date: 09/03/2025
+'''
+
 class Cell:
     def __init__(self):
         self.val = 0 # mine = 9, clear = 0, adjacency = 1-8
