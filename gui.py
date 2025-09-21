@@ -43,6 +43,7 @@ class MinesweeperGUI:
         self.new_game()
     
     def setup_ui(self):
+        """Initialize the main UI components."""
         self.create_menu_bar()
 
         self.game_frame = ttk.Frame(self.root)
@@ -55,6 +56,7 @@ class MinesweeperGUI:
         self.status_label.pack()
     
     def create_menu_bar(self):
+        """Create the top menu bar with game controls."""
         menu_frame = ttk.Frame(self.root)
         menu_frame.pack(fill=tk.X, padx=10, pady=10)
 
@@ -72,12 +74,14 @@ class MinesweeperGUI:
         self.new_game()
     
     def custom_difficulty(self):
+        """Open dialog for custom board size and mine count configuration."""
         dialog = tk.Toplevel(self.root)
         dialog.title("Custom Difficulty")
         dialog.geometry("400x250")
         dialog.transient(self.root)
         dialog.grab_set()
 
+        # Center dialog relative to main window
         dialog.geometry("+%d+%d" % (self.root.winfo_rootx() + 50, self.root.winfo_rooty() + 50))
         
         ttk.Label(dialog, text="Board Size:").pack(pady=5)
@@ -91,6 +95,7 @@ class MinesweeperGUI:
         mines_entry.pack(pady=5)
 
         def apply_custom():
+            """Validate and apply custom difficulty settings."""
             try:
                 size = int(size_var.get())
                 mines = int(mines_var.get())
@@ -113,6 +118,8 @@ class MinesweeperGUI:
         ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side=tk.LEFT, padx=5)
     
     def new_game(self):
+        """Initialize a new game with current difficulty settings."""
+        # Clear existing UI elements
         for widget in self.game_frame.winfo_children():
             widget.destroy()
         
@@ -125,13 +132,38 @@ class MinesweeperGUI:
 
         self.status_label.config(text=f"New game started!")
 
+        # Auto-resize window to fit content
         self.root.update_idletasks()
         self.root.geometry("")
     
     def create_game_grid(self):
+        """Create the game grid with row/column labels and interactive buttons."""
         self.buttons = []
 
+        for j in range(self.board_size):
+            col_label = tk.Label(
+                self.game_frame,
+                text=str(j + 1),
+                font=('Arial', 8, 'bold'),
+                width=3,
+                height=1,
+                bg='lightblue',
+                relief='raised'
+            )
+            col_label.grid(row=0, column=j + 1, padx=1, pady=1)
+
         for i in range(self.board_size):
+            row_label = tk.Label(
+                self.game_frame,
+                text=chr(65 + i),  # A=65, B=66, etc.
+                font=('Arial', 8, 'bold'),
+                width=3,
+                height=1,
+                bg='lightblue',
+                relief='raised'
+            )
+            row_label.grid(row=i + 1, column=0, padx=1, pady=1)
+            
             button_row = []
             for j in range(self.board_size):
                 btn = tk.Button(
@@ -143,32 +175,37 @@ class MinesweeperGUI:
                     command=lambda r=i, c=j: self.left_click(r, c)
                 )
                 btn.bind("<Button-3>", lambda e, r=i, c=j: self.right_click(r, c)) 
-                btn.grid(row=i, column=j, padx=1, pady=1)
+                btn.grid(row=i + 1, column=j + 1, padx=1, pady=1)
                 button_row.append(btn)
             self.buttons.append(button_row)
         
     def left_click(self, row, col):
+        """Handle left mouse clicks on game cells."""
         if not self.board.alive:
             return
         
+        # Initialize board on first click to avoid starting on a mine
         if not self.game_started:
             self.board.populate(self.mine_count, row, col)
             self.game_started = True
 
         result = self.board.select(row, col, flag=False)
-
         self.update_display()
 
+        # Check for game end conditions
         if not self.board.alive:
             self.game_over()
         elif self.check_win():
             self.game_won()
     
     def right_click(self, row, col):
+        """Handle right mouse clicks for flag placement/removal."""
         if not self.board.alive or not self.game_started:
             return
 
         result = self.board.select(row, col, flag=True)
+        
+        # Update flag counter based on action
         if result == 'flag':
             self.flag_count += 1
         elif result == 'unflag':
@@ -177,6 +214,7 @@ class MinesweeperGUI:
         self.update_display()
     
     def update_display(self):
+        """Refresh the visual state of all game buttons based on board state."""
         for i in range(self.board_size):
             for j in range(self.board_size):
                 cell = self.board.array[i][j]
@@ -198,7 +236,8 @@ class MinesweeperGUI:
         self.status_label.config(text=f"{self.mine_count - self.flag_count} mines remaining!")
     
     def game_over(self):
-        # reveal all bombs
+        """Handle game over state by revealing all mines."""
+        # Reveal all unflagged bombs
         for i in range(self.board_size):
             for j in range(self.board_size):
                 cell = self.board.array[i][j]
@@ -210,15 +249,17 @@ class MinesweeperGUI:
         messagebox.showinfo("Game over! You hit a mine!")
     
     def check_win(self):
+        """Check if player has won by revealing all non-mine cells."""
         for i in range(self.board_size):
             for j in range(self.board_size):
                 cell = self.board.array[i][j]
+                # Win condition: all non-mine cells must be revealed
                 if cell.val != self.board.BOMB_VALUE and (cell.tag == 0 or cell.tag == 2):
                     return False
         return True
 
     def game_won(self):
-        # flag all remaining bombs
+        """Handle win condition by auto-flagging remaining mines."""
         for i in range(self.board_size):
             for j in range(self.board_size):
                 cell = self.board.array[i][j]
