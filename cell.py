@@ -5,6 +5,7 @@ Purpose: serves as a grid cell for the minesweeper game
 Input(s): None
 Output(s): None
 Author(s): Gunther Luechtefeld
+           Srihari Meyoor
 Outside Source(s):  None
 Creation Date: 09/02/2025
 Updated Date: 09/03/2025

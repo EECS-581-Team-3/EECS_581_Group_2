@@ -26,14 +26,34 @@ class Board:
 
 
     def printArray(self): # now with labeled edges
-        print("  " + str([i for i in range(self.size)]))
-        j = 0
+        '''
+        Args: 
+            None
+        Output: 
+            print the current board state
+        Purpose:
+            Display the board in console
+        '''
+        print("  " + str([i for i in range(self.size)])) #print column labels
+        j = 0 #current row index
         for row in self.array:
-            print(f"{j} " + str(row))
-            j = j+ 1
+            print(f"{j} " + str(row)) #print row index and row values
+            j = j + 1 #increments row by one
 
 
     def populate(self, mineCount, firstRow, firstCol): #throw mines everywhere on that john
+        '''
+        Args:
+            mineCount: integer number of mines to place
+            firstRow: integer row of the first cell selected
+            firstCol: integer column of the first cell selected
+        Output:
+            returns nothing
+        Purpose:
+            Randomly places mines on the board
+            Ensures the first selected cell is not a mine
+            Update values of adjacent cells after each mine is randomly placed
+        '''
         # realCount = amount of mines on board
         # if mineCount != realCount, keep going
         # else stop
@@ -50,19 +70,33 @@ class Board:
 
 
     def select(self, row, col, flag): # this function "clicks" on the mine. flag is boolean
-
-        if flag:
+        '''
+        Args:
+            row: integer indicating row of cell to reveal
+            col: integer indicating column of cell to reveal 
+            flag: boolean, True for flagging/unflagging cell and False for revealing cell
+        Output:
+            returns 'flag' if cell unflagged and flag == True
+            returns 'unflag' if cell flagged and flag == True
+            returns None if flag == False
+        Purpose:
+            Handles player interactions on a cell
+            Used for toggling flag/unflag
+            used for revealing cell
+            calling recursive reveal for empty cell
+        '''
+        if flag: #if user wants to flag/unflag
             if self.array[row][col].tag == 2:
                 self.array[row][col].tag = 0 #set tag back to hidden
-                return "unflag"
+                return "unflag" #call to unflag the cell
             elif self.array[row][col].tag == 0:
                 self.array[row][col].tag = 2 # set tag to flagged
-                return "flag"
+                return "flag" #call to flag the cell
         
         else:
-            self._reveal(row, col)
+            self._reveal(row, col) #reveal cell and adjacent cells if cell value is 0
 
-        return None
+        return None #don't return anything if flag is False
 
 
     def _update_adjacency(self, row, col):
