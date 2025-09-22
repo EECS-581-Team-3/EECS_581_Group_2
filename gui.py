@@ -8,7 +8,7 @@ Author(s): Jamie King
            Jacob Kice
 Outside Source(s):  None
 Creation Date: 09/17/2025
-Updated Date: 09/17/2025
+Updated Date: 09/21/2025
 '''
 
 import tkinter as tk
@@ -43,7 +43,14 @@ class MinesweeperGUI:
         self.new_game()
     
     def setup_ui(self):
-        """Initialize the main UI components."""
+        """
+            Args:
+                None
+            Output:
+                None
+            Purpose:
+                Initialize the main UI components.
+        """
         self.create_menu_bar()
 
         self.game_frame = ttk.Frame(self.root)
@@ -56,7 +63,14 @@ class MinesweeperGUI:
         self.status_label.pack()
     
     def create_menu_bar(self):
-        """Create the top menu bar with game controls."""
+        """
+            Args:
+                None
+            Output:
+                None
+            Purpose:
+                Create the top menu bar with game controls.
+        """
         menu_frame = ttk.Frame(self.root)
         menu_frame.pack(fill=tk.X, padx=10, pady=10)
 
@@ -69,12 +83,29 @@ class MinesweeperGUI:
         custom_btn.pack(side=tk.LEFT, padx=2)
     
     def set_difficulty(self, size, mines):
+        '''
+            Args:
+                size: integer indicating N value of NxN board
+                mines: integer indicating number of mines
+            Output:
+                None
+            Purpose:
+                Updates game parameters
+                Calls new_game function to reset game state
+        '''
         self.board_size = size
         self.mine_count = mines
         self.new_game()
     
     def custom_difficulty(self):
-        """Open dialog for custom board size and mine count configuration."""
+        """
+            Args:
+                None
+            Output:
+                None
+            Purpose:
+                Open dialog for custom board size and mine count configuration.
+        """
         dialog = tk.Toplevel(self.root)
         dialog.title("Custom Difficulty")
         dialog.geometry("400x250")
@@ -95,7 +126,14 @@ class MinesweeperGUI:
         mines_entry.pack(pady=5)
 
         def apply_custom():
-            """Validate and apply custom difficulty settings."""
+            """
+                Args:
+                    None
+                Output:
+                    None
+                Purpose:
+                    Validate and apply custom difficulty settings.
+            """
             try:
                 size = int(size_var.get())
                 mines = int(mines_var.get())
@@ -118,7 +156,14 @@ class MinesweeperGUI:
         ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side=tk.LEFT, padx=5)
     
     def new_game(self):
-        """Initialize a new game with current difficulty settings."""
+        """
+            Args:
+                None
+            Output:
+                None
+            Purpose:
+                Initialize a new game with current difficulty settings.
+        """
         # Clear existing UI elements
         for widget in self.game_frame.winfo_children():
             widget.destroy()
@@ -137,7 +182,14 @@ class MinesweeperGUI:
         self.root.geometry("")
     
     def create_game_grid(self):
-        """Create the game grid with row/column labels and interactive buttons."""
+        """
+            Args:
+                None
+            Output:
+                None
+            Purpose:
+                Create the game grid with row/column labels and interactive buttons.
+        """
         self.buttons = []
 
         for j in range(self.board_size):
@@ -180,7 +232,15 @@ class MinesweeperGUI:
             self.buttons.append(button_row)
         
     def left_click(self, row, col):
-        """Handle left mouse clicks on game cells."""
+        """
+            Args:
+                row: integer indicating the row value of the cell that was clicked
+                col: integer indicating the column value of the cell that was clicked
+            Output:
+                None
+            Purpose:
+                Handle left mouse clicks on game cells.
+        """
         if not self.board.alive:
             return
         
@@ -199,7 +259,15 @@ class MinesweeperGUI:
             self.game_won()
     
     def right_click(self, row, col):
-        """Handle right mouse clicks for flag placement/removal."""
+        """
+            Args:
+                row: integer indicating the row of the cell that was clicked
+                col: integer indicating the column of the cell that was clicked
+            Output:
+                None
+            Purpose:
+                Handle right mouse clicks for flag placement/removal.
+        """
         if not self.board.alive or not self.game_started:
             return
 
@@ -214,7 +282,14 @@ class MinesweeperGUI:
         self.update_display()
     
     def update_display(self):
-        """Refresh the visual state of all game buttons based on board state."""
+        """
+            Args:
+                None
+            Output:
+                None
+            Purpose:
+                Refresh the visual state of all game buttons based on board state.
+        """
         for i in range(self.board_size):
             for j in range(self.board_size):
                 cell = self.board.array[i][j]
@@ -236,7 +311,14 @@ class MinesweeperGUI:
         self.status_label.config(text=f"{self.mine_count - self.flag_count} mines remaining!")
     
     def game_over(self):
-        """Handle game over state by revealing all mines."""
+        """
+            Args:
+                None
+            Output:
+                None
+            Purpose:
+                Handle game over state by revealing all mines.
+        """
         # Reveal all unflagged bombs
         for i in range(self.board_size):
             for j in range(self.board_size):
@@ -249,7 +331,15 @@ class MinesweeperGUI:
         messagebox.showinfo("Game over! You hit a mine!")
     
     def check_win(self):
-        """Check if player has won by revealing all non-mine cells."""
+        """
+            Args:
+                None
+            Output:
+                returns False if the game has not yet been won
+                returns True otherwise
+            Purpose:
+                Check if player has won by revealing all non-mine cells.
+        """
         for i in range(self.board_size):
             for j in range(self.board_size):
                 cell = self.board.array[i][j]
@@ -259,7 +349,14 @@ class MinesweeperGUI:
         return True
 
     def game_won(self):
-        """Handle win condition by auto-flagging remaining mines."""
+        """
+            Args:
+                None
+            Output:
+                None
+            Purpose:
+                Handle win condition by auto-flagging remaining mines.
+        """
         for i in range(self.board_size):
             for j in range(self.board_size):
                 cell = self.board.array[i][j]
