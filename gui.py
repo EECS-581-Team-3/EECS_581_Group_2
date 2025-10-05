@@ -27,6 +27,12 @@ class MinesweeperGUI:
         self.mine_count = 10
 
         self.flag_count = 0
+        self.ai_mode = tk.StringVar(value="OFF")     
+        self.ai_solver = None
+        self.ai_auto = False                         
+        self.current_turn = "HUMAN"                  
+        self.multiplayer = tk.BooleanVar(value=False)
+        self.current_player = 1 
 
         self.number_colors = {
             1: '#0000FF',  # Blue
@@ -78,9 +84,23 @@ class MinesweeperGUI:
         new_game_btn.pack(side=tk.LEFT, padx=(0, 10))
 
         ttk.Label(menu_frame, text="Set difficulty:").pack(side=tk.LEFT, padx=(10, 5))
+        ttk.Button(menu_frame, text="Custom", command=self.custom_difficulty).pack(side=tk.LEFT, padx=2)
 
         custom_btn = ttk.Button(menu_frame, text="Custom", command=self.custom_difficulty)
         custom_btn.pack(side=tk.LEFT, padx=2)
+
+        ttk.Label(menu_frame, text="AI:").pack(side=tk.LEFT, padx=(15, 5))
+        ai_combo = ttk.Combobox(menu_frame, width=10, state="readonly",
+                                values=["OFF", "EASY", "MEDIUM", "HARD"],
+                                textvariable=self.ai_mode)
+        ai_combo.pack(side=tk.LEFT, padx=2)
+        ai_combo.bind("<<ComboboxSelected>>", lambda e: self._on_ai_mode_change())
+
+        ttk.Button(menu_frame, text="AI Step", command=self.ai_next_move).pack(side=tk.LEFT, padx=6)
+        ttk.Button(menu_frame, text="AI Auto", command=self.ai_toggle_auto).pack(side=tk.LEFT, padx=2)
+
+        ttk.Checkbutton(menu_frame, text="Multiplayer", variable=self.multiplayer,
+                        command=self._on_multiplayer_toggle).pack(side=tk.LEFT, padx=(15, 0))
     
     def set_difficulty(self, size, mines):
         '''
@@ -173,9 +193,13 @@ class MinesweeperGUI:
         self.board = Board(self.board_size)
         self.buttons = []
 
-        self.create_game_grid()
+        self.current_turn = "HUMAN"
+        self.current_player = 1
+        self.ai_auto = False 
+        self._rebuild_ai_solver()
 
-        self.status_label.config(text=f"New game started!")
+        self.create_game_grid()
+        self._update_status()
 
         # Auto-resize window to fit content
         self.root.update_idletasks()
@@ -257,6 +281,7 @@ class MinesweeperGUI:
             self.game_over()
         elif self.check_win():
             self.game_won()
+        self._advance_turns()
     
     def right_click(self, row, col):
         """
@@ -280,6 +305,86 @@ class MinesweeperGUI:
             self.flag_count -= 1
 
         self.update_display()
+        self._advance_turns()
+
+    def _rebuild_ai_solver(self):
+        mode = self.ai_mode.get()
+        if mode == "OFF":
+            self.ai_solver = None
+        else:
+            diff = {"EASY": EASY, "MEDIUM": MEDIUM, "HARD": HARD}[mode]
+            self.ai_solver = AISolver(self.board, difficulty=diff)
+
+    def _on_ai_mode_change(self):
+        self._rebuild_ai_solver()
+        self.current_turn = "HUMAN"
+        self._update_status()
+
+    def ai_next_move(self):
+        if not self.board.alive or self.ai_solver is None:
+            return
+
+        if not self.game_started:
+            r = self.board_size // 2
+            c = self.board_size // 2
+            self.board.populate(self.mine_count, r, c)
+            self.game_started = True
+
+        move = self.ai_solver.nextMove()
+        self.update_display()
+
+        if not self.board.alive:
+            self.game_over()
+            return
+        if self.check_win():
+            self.game_won()
+            return
+
+        if not self.multiplayer.get():
+            self.current_turn = "HUMAN"
+            self._update_status()
+
+    def ai_toggle_auto(self):
+        if self.ai_solver is None:
+            return
+        self.ai_auto = not self.ai_auto
+        if self.ai_auto:
+            self._ai_tick()
+
+    def _ai_tick(self):
+        if not self.ai_auto or not self.board.alive or self.ai_solver is None:
+            return
+        if not self.multiplayer.get():
+            self.current_turn = "AI"
+
+        self.ai_next_move()
+
+        if self.ai_auto and self.board.alive and not self.check_win():
+            self.root.after(150, self._ai_tick)
+
+    def _advance_turns(self):
+        if self.multiplayer.get():
+            self.current_player = 2 if self.current_player == 1 else 1
+            self._update_status()
+            return
+
+        if self.ai_solver is None:
+            self._update_status()
+            return
+
+        self.current_turn = "AI"
+        self._update_status()
+
+        if self.ai_auto:
+            self._ai_tick()
+
+    def _on_multiplayer_toggle(self):
+        if self.multiplayer.get():
+            self.current_player = 1
+            self.current_turn = "HUMAN"
+        else:
+            self.current_turn = "HUMAN"
+        self._update_status()
     
     def update_display(self):
         """
@@ -309,6 +414,15 @@ class MinesweeperGUI:
                     btn.config(text="💣", bg='red', relief='sunken')
 
         self.status_label.config(text=f"{self.mine_count - self.flag_count} mines remaining!")
+
+    def _update_status(self):
+        mines_remaining = self.mine_count - self.flag_count
+        if self.multiplayer.get():
+            self.status_label.config(text=f"{mines_remaining} mines remaining | Player {self.current_player}'s turn")
+        else:
+            who = self.ai_mode.get() if self.ai_solver else "No AI"
+            turn = self.current_turn if self.ai_solver else "HUMAN"
+            self.status_label.config(text=f"{mines_remaining} mines remaining | AI: {who} | Turn: {turn}")
     
     def game_over(self):
         """
@@ -327,8 +441,14 @@ class MinesweeperGUI:
                     btn = self.buttons[i][j]
                     btn.config(text="💣", bg='lightcoral', relief='sunken')
         
-        self.status_label.config(text="Game over! You hit a mine!")
-        messagebox.showinfo("Game over! You hit a mine!")
+        if self.multiplayer.get():
+            loser = self.current_player
+            winner = 2 if loser == 1 else 1
+            self.status_label.config(text=f"Game over! Player {loser} hit a mine. Player {winner} wins!")
+            messagebox.showinfo("Game Over", f"Player {loser} hit a mine. Player {winner} wins!")
+        else:
+            self.status_label.config(text="Game over! You hit a mine!")
+            messagebox.showinfo("Game Over", "You hit a mine!")
     
     def check_win(self):
         """
@@ -364,8 +484,12 @@ class MinesweeperGUI:
                     cell.tag = 2
                     self.buttons[i][j].config(text="🚩", bg='lightgreen', relief='raised')
         
-        self.status_label.config(text="Congratulations, you won!")
-        messagebox.showinfo("Congratulations, you won!")
+        if self.multiplayer.get():
+            self.status_label.config(text="All mines cleared — Tie!")
+            messagebox.showinfo("Victory", "All mines cleared — Tie!")
+        else:
+            self.status_label.config(text="Congratulations, you won!")
+            messagebox.showinfo("Victory", "Congratulations, you won!")
 
 def main():
     root = tk.Tk()
