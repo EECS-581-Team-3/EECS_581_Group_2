@@ -1,3 +1,33 @@
+"""
+File: ai_solver.py
+
+Purpose:
+    Provide a rule-based Minesweeper AI/bot that selects next action from current board state.
+    Three difficultly tiers: 
+    EASY - reveal and random hidden cell
+    MEDIUM - follows logic:
+               if (clue - flagged) == |hidden|, flag all hidden
+               if (clue - flagged) == 0, reveal all hidden
+               else guess.
+    HARD - runs MEDIUM logic, then check for 1-2-1 horizontal/vertical patterns
+           if found, infer flags/reveals around the pattern, else guess
+
+Inputs:
+    AISolver(board, difficulty="MEDIUM")
+    Requires board: size, array[Cell(val, tag)], select(r,c,flag), and BOMB_VALUE
+
+Outputs:
+  nextMove() -> (row, col, "flag"|"reveal"|"random") | None
+
+Errors:
+    - Assumes the Board interface is valid
+    - Random reveals may hit a mine
+
+Author(s): Jenny Tsotezo, Genea Dinnall, Sam Kelemen, Megan Taggart
+Created Date: 2025-10-03
+"""
+
+
 import random
 
 # define modes as strings for ease of use
