@@ -312,28 +312,35 @@ class MinesweeperGUI:
 
         self.update_display()
         self._advance_turns()
-
+    
+    # Code ADDED by Group 3 start:
+    # reads current ai status mode from UI
     def _rebuild_ai_solver(self):
         mode = self.ai_mode.get()
+        # if mode is off, nothing is done
         if mode == "OFF":
             self.ai_solver = None
             return
-
+        # maps UI mode names to difficulty tokens 
         MODE_MAP = {"EASY": EASY, "MEDIUM" : MEDIUM, "HARD" : HARD}
+        # checks current difficulty
         diff = MODE_MAP.get(self.ai_mode.get())
+        # if mode unknown, AI is disabled
         if diff is None:
             self.ai_solver = None
             return
+        # reuse existing AI solver if it matches same board and difficulty
         existing = getattr(self, "ai_solver", None)
         if isinstance(existing, AISolver) and existing.difficulty == diff and existing.board is self.board:
             return
+        # or initializes new ai solver
         self.ai_solver = AISolver(self.board, difficulty=diff)
-
+    # when ai mode is changed rebuilds to reflect new mode
     def _on_ai_mode_change(self):
         self._rebuild_ai_solver()
         self.current_turn = "HUMAN"
         self._update_status()
-
+    # single move based on AI function, 
     def ai_next_move(self):
         if not self.board.alive or self.ai_solver is None:
             return
@@ -363,17 +370,18 @@ class MinesweeperGUI:
         if not self.multiplayer.get():
             self.current_turn = "HUMAN"
             self._update_status()
-
+    # toggle function for continuous AI play
     def ai_toggle_auto(self):
         if self.ai_solver is None:
             return
         self.ai_auto = not self.ai_auto
         if self.ai_auto:
             self._ai_tick()
-
+    # helper function for auto play and returns immediately when toggle switched to off
     def _ai_tick(self):
         if not self.ai_auto or not self.board.alive or self.ai_solver is None:
             return
+        # allows for multiplayer play against AI
         if not self.multiplayer.get():
             self.current_turn = "AI"
 
@@ -381,23 +389,23 @@ class MinesweeperGUI:
 
         if self.ai_auto and self.board.alive and not self.check_win():
             self.root.after(150, self._ai_tick)
-
     def _advance_turns(self):
+        # flips between current player and opposing and updates status
         if self.multiplayer.get():
             self.current_player = 2 if self.current_player == 1 else 1
             self._update_status()
             return
-
+        # handles single player with no AI
         if self.ai_solver is None:
             self._update_status()
             return
-
+        # if AI exists sets turn to AI and updates
         self.current_turn = "AI"
         self._update_status()
 
         if self.ai_auto:
             self._ai_tick()
-
+    # handler that toggles to multiplayer mode 
     def _on_multiplayer_toggle(self):
         if self.multiplayer.get():
             self.current_player = 1
@@ -405,7 +413,9 @@ class MinesweeperGUI:
         else:
             self.current_turn = "HUMAN"
         self._update_status()
-    
+
+    # Code ADDED by Group 3 finish
+
     def update_display(self):
         """
             Args:

@@ -15,31 +15,34 @@ class AISolver:
 
     # move determined by difficulty selection, easy is random.
     def nextMove(self):
+        # easy mode randomly selects move without considering neighbor count
         if self.difficulty == EASY:
             return self._random_reveal()
-
+        # uses medium rules helper function to determine next rule
         move = self._apply_medium_rules()
+        # returns move if it exists
         if move:
             return move
-
+        # does 1-2-1 pattern inference if hard mode selected
         if self.difficulty == HARD:
             move = self._apply_121_rules()
             if move:
                 return move
-
+        # random reveal is no deterministic move is found 
         return self._random_reveal()
-
+    # picks a random cell and reveals based on size of board
     def _random_reveal(self):
         hidden = [(r, c)
                   for r in range(self.size)
                   for c in range(self.size)
                   if self.board.array[r][c].tag == 0]
+        # ensures that cell is not already revealed
         if not hidden:
             return None
         r, c = random.choice(hidden)
         self.board.select(r, c, flag=False)
         return (r, c, "random")
-
+    # flags when bombs are suspected and reveals if there are flagged neighbors
     def _apply_medium_rules(self):
         for r in range(self.size):
             for c in range(self.size):
@@ -62,8 +65,10 @@ class AISolver:
                     return (rr, cc, "reveal")
 
         return None
-
+    # looks for horizontal or vertical 1-2-1 triplets of revealed cells
+    # attempts inference to identify safe reveals or flags
     def _apply_121_rules(self):
+        # scans horizontally
         for r in range(self.size):
             for c in range(self.size - 2):
                 triplet = [self.board.array[r][c + k] for k in range(3)]
@@ -71,7 +76,7 @@ class AISolver:
                     move = self._apply_121_inference_line(r, c, horizontal=True)
                     if move:
                         return move
-
+        # scans vertically
         for c in range(self.size):
             for r in range(self.size - 2):
                 triplet = [self.board.array[r + k][c] for k in range(3)]
@@ -81,7 +86,7 @@ class AISolver:
                         return move
 
         return None
-
+    # generator that yeilds coordinates of the surrounding neighbors
     def _neighbors(self, r, c):
         for dr in (-1, 0, 1):
             for dc in (-1, 0, 1):
@@ -90,7 +95,7 @@ class AISolver:
                 rr, cc = r + dr, c + dc
                 if 0 <= rr < self.size and 0 <= cc < self.size:
                     yield rr, cc
-
+    # partitions neighbors into hidden or flagged for a given cell
     def _neighbor_partition(self, r, c):
         hidden = []
         flagged = 0
@@ -101,23 +106,25 @@ class AISolver:
             elif t == 2:
                 flagged += 1
         return hidden, flagged
-
+    # starting at cell attempts to infer flags and safe reveals using surrounding cells
     def _apply_121_inference_line(self, r, c, horizontal=True):
         if horizontal:
             mid = (r, c + 1)
+            # band covers the row above and row below 3-triplet columns
             band = [(r - 1, c), (r - 1, c + 1), (r - 1, c + 2),
                     (r + 1, c), (r + 1, c + 1), (r + 1, c + 2)]
         else:
             mid = (r + 1, c)
+            # band covers the column left and right of the 3-triplet rows
             band = [(r, c - 1), (r + 1, c - 1), (r + 2, c - 1),
                     (r, c + 1), (r + 1, c + 1), (r + 2, c + 1)]
-
+        # prefer to conservatively flag any hidden cell 
         for rr, cc in band:
             if 0 <= rr < self.size and 0 <= cc < self.size:
                 if self.board.array[rr][cc].tag == 0:
                     self.board.select(rr, cc, flag=True)
                     return (rr, cc, "flag")
-
+        # if no band hidden cells are found, reveals neighbor of the middle
         for rr, cc in self._neighbors(*mid):
             if self.board.array[rr][cc].tag == 0:
                 self.board.select(rr, cc, flag=False)
