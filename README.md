@@ -32,3 +32,5 @@ Modules:
     random - for mine placement
     tkinter - for GUI
     os - for terminal interface, to clear terminal between changes in game state (optional)
+
+*Documentation for the changes made by Group 3 can be found in the Main branch as "Group 3 Project 2 Master Document."
