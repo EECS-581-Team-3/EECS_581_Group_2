@@ -14,6 +14,12 @@ Updated Date: 09/21/2025
 import tkinter as tk
 from tkinter import ttk, messagebox
 from board import Board
+from ai_solver import AISolver
+
+EASY = "EASY"
+MEDIUM = "MEDIUM"
+HARD = "HARD"
+
 
 class MinesweeperGUI:
     def __init__(self, root):
@@ -94,8 +100,8 @@ class MinesweeperGUI:
                                 values=["OFF", "EASY", "MEDIUM", "HARD"],
                                 textvariable=self.ai_mode)
         ai_combo.pack(side=tk.LEFT, padx=2)
-        ai_combo.bind("<<ComboboxSelected>>", lambda e: self._on_ai_mode_change())
 
+        self.ai_mode.trace_add("write", lambda *a: self._on_ai_mode_change())
         ttk.Button(menu_frame, text="AI Step", command=self.ai_next_move).pack(side=tk.LEFT, padx=6)
         ttk.Button(menu_frame, text="AI Auto", command=self.ai_toggle_auto).pack(side=tk.LEFT, padx=2)
 
@@ -311,9 +317,17 @@ class MinesweeperGUI:
         mode = self.ai_mode.get()
         if mode == "OFF":
             self.ai_solver = None
-        else:
-            diff = {"EASY": EASY, "MEDIUM": MEDIUM, "HARD": HARD}[mode]
-            self.ai_solver = AISolver(self.board, difficulty=diff)
+            return
+
+        MODE_MAP = {"EASY": EASY, "MEDIUM" : MEDIUM, "HARD" : HARD}
+        diff = MODE_MAP.get(self.ai_mode.get())
+        if diff is None:
+            self.ai_solver = None
+            return
+        existing = getattr(self, "ai_solver", None)
+        if isinstance(existing, AISolver) and existing.difficulty == diff and existing.board is self.board:
+            return
+        self.ai_solver = AISolver(self.board, difficulty=diff)
 
     def _on_ai_mode_change(self):
         self._rebuild_ai_solver()
@@ -331,7 +345,13 @@ class MinesweeperGUI:
             self.game_started = True
 
         move = self.ai_solver.nextMove()
+        self.flag_count = sum(1 for i in range(self.board.size) for j in range(self.board.size) if self.board.array[i][j].tag == 2)
         self.update_display()
+        self._update_status()
+
+        if move is None:
+            self.current_turn = "HUMAN"
+            return
 
         if not self.board.alive:
             self.game_over()

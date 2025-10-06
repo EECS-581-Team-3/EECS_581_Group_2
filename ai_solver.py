@@ -1,15 +1,19 @@
 import random
 
+# define modes as strings for ease of use
 EASY = "EASY"
 MEDIUM = "MEDIUM"
 HARD = "HARD"
 
+# creates AI solver class for use, takes in difficulty and board. 
 class AISolver:
+    # Auto difficulty is medium on initialization
     def __init__(self, board, difficulty=MEDIUM):
         self.board = board
         self.size = board.size
         self.difficulty = difficulty
 
+    # move determined by difficulty selection, easy is random.
     def nextMove(self):
         if self.difficulty == EASY:
             return self._random_reveal()
